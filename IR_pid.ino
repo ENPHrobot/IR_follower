@@ -125,8 +125,13 @@ void loop()
   P_error = static_cast<int32_t> (pro_gain) * error;
   D_error = diff_gain * ((float)(error - recent_error)/(float)(t+to)); // time is present within the differential gain
   I_error += int_gain * error;
-  net_error = ((static_cast<int32_t>(P_error + D_error + I_error) * average) >> 12); //* 0.05; // divide by 1024
-  Serial.print(P_error + D_error + I_error); Serial.print(" "); Serial.println(net_error);
+  net_error = ((static_cast<int32_t>(P_error + D_error + I_error) * average) >> 12);
+  //Serial.print(P_error + D_error + I_error); Serial.print(" "); Serial.println(net_error);
+  
+  if( net_error > 235 )
+    net_error = 235;
+  else if (net_error < -235)
+    net_error = -235;
   
   //if net error is positive, right_motor will be stronger, will turn to the left
   //motor.speed(LEFT_MOTOR, base_speed + net_error);
