@@ -60,7 +60,7 @@ int to;
 int pro_gain;
 int diff_gain;
 int int_gain;
-int base_speed;
+unsigned int base_speed;
 int threshold;
 
 void setup()
@@ -108,10 +108,10 @@ void loop()
   }
 
   // PID control
-  left_sensor = knob(6);
-  right_sensor = knob(7);
+  left_sensor = analogRead(IR_L);
+  right_sensor = analogRead(IR_R);
   difference = right_sensor - left_sensor;
-  average = (left_sensor + right_sensor) >>3;
+  average = (left_sensor + right_sensor) >> 3;
   error = difference;
 
   // Differential control
@@ -126,8 +126,9 @@ void loop()
   D_error = diff_gain * ((float)(error - recent_error)/(float)(t+to)); // time is present within the differential gain
   I_error += int_gain * error;
   net_error = ((static_cast<int32_t>(P_error + D_error + I_error) * average) >> 12);
-  //Serial.print(P_error + D_error + I_error); Serial.print(" "); Serial.println(net_error);
+  Serial.print(D_error); Serial.print(" "); Serial.println(net_error);
   
+  // Limit max error
   if( net_error > 235 )
     net_error = 235;
   else if (net_error < -235)
