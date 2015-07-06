@@ -50,10 +50,10 @@ int right_sensor;
 int error;
 int last_error = 0;
 int recent_error = 0;
-int P_error;
+int32_t P_error;
 int D_error;
-int I_error;
-int net_error;
+int I_error = 0;
+int32_t net_error;
 int t = 1;
 int to;
 
@@ -67,7 +67,7 @@ void setup()
 {
   #include <phys253setup.txt>
   LCD.clear(); LCD.home();
-  
+  Serial.begin(9600);
   base_speed = menuItems[0].Value;
   pro_gain = menuItems[1].Value;
   diff_gain = menuItems[2].Value;
@@ -82,6 +82,15 @@ void setup()
 void loop()
 {        
         
+  // Debugging pause check
+  if (stopbutton()){
+    delay(500);
+    while(!stopbutton()){}
+    delay(250);
+    LCD.clear(); LCD.print("Restarting...");
+  }
+
+  // Enter Menu Check
   if (startbutton() && stopbutton()){          
     // Pause motors
     motor.speed(LEFT_MOTOR, 0);
@@ -99,23 +108,25 @@ void loop()
   }
 
   // PID control
-  left_sensor = analogRead(IR_L);
-  right_sensor = analogRead(IR_R);
-  difference = left_sensor - right_sensor;
-  average = (left_sensor + right_sensor) >> 1;
+  left_sensor = knob(6);
+  right_sensor = knob(7);
+  difference = right_sensor - left_sensor;
+  average = (left_sensor + right_sensor) >>3;
   error = difference;
 
   // Differential control
-  if( !(error - last_error < threshold)){
+  if( !(error - last_error < 5)){
     recent_error = last_error;
     to = t;
     t = 1;
   }
   
-  P_error = pro_gain * error;
+  
+  P_error = static_cast<int32_t> (pro_gain) * error;
   D_error = diff_gain * ((float)(error - recent_error)/(float)(t+to)); // time is present within the differential gain
   I_error += int_gain * error;
-  net_error = ((P_error + D_error + I_error) * average) >> 10; // divide by 1024
+  net_error = ((static_cast<int32_t>(P_error + D_error + I_error) * average) >> 12); //* 0.05; // divide by 1024
+  Serial.print(P_error + D_error + I_error); Serial.print(" "); Serial.println(net_error);
   
   //if net error is positive, right_motor will be stronger, will turn to the left
   //motor.speed(LEFT_MOTOR, base_speed + net_error);
