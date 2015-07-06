@@ -148,7 +148,7 @@ void Menu()
 		LCD.clear(); LCD.home();
 		LCD.print(menuItems[menuIndex].Name); LCD.print(" "); LCD.print(menuItems[menuIndex].Value);
 		LCD.setCursor(0, 1);
-		LCD.print("Set to "); LCD.print(knob(7)); LCD.print("?");
+		LCD.print("Set to "); LCD.print(menuIndex != 0 ? knob(7) : knob(7) >> 2); LCD.print("?");
 		delay(100);
  
 		/* Press start button to save the new value */
@@ -156,20 +156,17 @@ void Menu()
 		{
 			delay(100);
       int val = knob(7); // cache knob value to memory
-      if (startbutton())
-      {
-        
-        // Limit speed to 700
-        if (menuIndex == 0) {
-          val = val >> 2;
-          LCD.clear(); LCD.home();
-          LCD.print("Speed set to "); LCD.print(val);
-          delay(250);
-        }
+      // Limit speed to 700
+      if (menuIndex == 0) {
+        val = val >> 2;
+        LCD.clear(); LCD.home();
+        LCD.print("Speed set to "); LCD.print(val);
+        delay(250);
       }
-				menuItems[menuIndex].Value = val;
-				menuItems[menuIndex].Save();
-				delay(250);
+      
+			menuItems[menuIndex].Value = val;
+			menuItems[menuIndex].Save();
+			delay(250);
 
 			}
 		}
