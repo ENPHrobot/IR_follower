@@ -163,14 +163,13 @@ void Menu()
         LCD.print("Speed set to "); LCD.print(val);
         delay(250);
       }
-      
+
 			menuItems[menuIndex].Value = val;
 			menuItems[menuIndex].Save();
 			delay(250);
-
-			}
 		}
- 
+		
+
 		/* Press stop button to exit menu */
 		if (stopbutton())
 		{
@@ -184,3 +183,4 @@ void Menu()
 			}
 		}
 	}
+}
